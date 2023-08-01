@@ -1,4 +1,4 @@
-"""Scrapy library import"""
+"""Scrapy library import."""
 import scrapy
 from scrapy.crawler import CrawlerProcess
 
@@ -18,7 +18,7 @@ SHARED_CSS_SELECTOR = (
 
 
 class GitHubTrendingPythonSpider(scrapy.Spider):
-    """Spider for daily trending Python repositories"""
+    """Spider for daily trending Python repositories."""
 
     name = "GitHubTrendingSpider"
     start_urls = ["https://github.com/trending/python?since=daily"]
@@ -28,6 +28,18 @@ class GitHubTrendingPythonSpider(scrapy.Spider):
             yield {"repo": "https://github.com" + repo, "language": "python"}
 
 
+class GitHubTrendingGolangSpider(scrapy.Spider):
+    """Spider for daily trending Golang repositories."""
+
+    name = "GitHubTrendingSpider"
+    start_urls = ["https://github.com/trending/go?since=daily"]
+
+    def parse(self, response):
+        for repo in response.css(SHARED_CSS_SELECTOR).extract():
+            yield {"repo": "https://github.com" + repo, "language": "go"}
+
+
 process = CrawlerProcess()
 process.crawl(GitHubTrendingPythonSpider)
+process.crawl(GitHubTrendingGolangSpider)
 process.start()
