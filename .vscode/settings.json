@@ -1,3 +1,11 @@
 {
-  "cSpell.words": ["scrapy"]
+  "cSpell.words": [
+    "scrapy"
+  ],
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+  },
+  "editor.formatOnSave": true,
+  "python.formatting.provider": "none",
+  "python.analysis.typeCheckingMode": "basic",
 }
