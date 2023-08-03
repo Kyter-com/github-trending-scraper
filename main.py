@@ -21,6 +21,10 @@ SHARED_CSS_SELECTOR = (
 )
 
 
+def handler():
+    print("Hello World")
+
+
 class GitHubTrendingPythonSpider(scrapy.Spider):
     """Spider for daily trending Python repositories."""
 
