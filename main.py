@@ -1,6 +1,10 @@
 """Scrapy library import."""
+import json
+import datetime
 import scrapy
+import requests
 from scrapy.crawler import CrawlerProcess
+from scrapy.utils.project import get_project_settings
 
 
 SHARED_CSS_SELECTOR = (
@@ -25,7 +29,19 @@ class GitHubTrendingPythonSpider(scrapy.Spider):
 
     def parse(self, response):
         for repo in response.css(SHARED_CSS_SELECTOR).extract():
-            yield {"repo": "https://github.com" + repo, "language": "python"}
+            res = requests.put(
+                "url",
+                files={
+                    "value": f"https://github.com{repo}",
+                    "metadata": json.dumps(
+                        {"updatedAt": datetime.datetime.now().isoformat()}
+                    ),
+                },
+                headers={"Authorization": "Bearer token"},
+                timeout=10,
+            )
+            res.raise_for_status()
+            print("📡 [Python] Successfully synced with Cloudflare KV")
 
 
 class GitHubTrendingGolangSpider(scrapy.Spider):
@@ -39,7 +55,9 @@ class GitHubTrendingGolangSpider(scrapy.Spider):
             yield {"repo": "https://github.com" + repo, "language": "go"}
 
 
-process = CrawlerProcess()
+custom_settings = get_project_settings()
+custom_settings["LOG_LEVEL"] = "ERROR"
+process = CrawlerProcess(settings=custom_settings)
 process.crawl(GitHubTrendingPythonSpider)
 process.crawl(GitHubTrendingGolangSpider)
 process.start()
