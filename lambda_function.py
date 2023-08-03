@@ -21,10 +21,6 @@ SHARED_CSS_SELECTOR = (
 )
 
 
-def lambda_handler():
-    print("Hello World")
-
-
 class GitHubTrendingPythonSpider(scrapy.Spider):
     """Spider for daily trending Python repositories."""
 
