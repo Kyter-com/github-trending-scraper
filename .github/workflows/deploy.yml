@@ -18,8 +18,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - run: pip install -r requirements.txt
+
       - name: Zip Python Code
-        run: zip lambda.zip
+        run: zip -r lambda.zip .
 
       - name: Update Lambda Function
         run: aws lambda update-function-code --function-name github-trending-scraper --zip-file fileb://lambda.zip
