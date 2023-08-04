@@ -21,6 +21,8 @@ SHARED_CSS_SELECTOR = (
 )
 
 
+print("🏁 Starting scraper")
+
 class GitHubTrendingPythonSpider(scrapy.Spider):
     """Spider for daily trending Python repositories."""
 
