@@ -1,11 +1,14 @@
-"""Scrapy library import."""
 import json
 import datetime
 import scrapy
+import os
 import requests
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
+from dotenv import load_dotenv
 
+
+load_dotenv()
 
 SHARED_CSS_SELECTOR = (
     "body >"
@@ -23,6 +26,7 @@ SHARED_CSS_SELECTOR = (
 
 print("🏁 Starting scraper")
 
+
 class GitHubTrendingPythonSpider(scrapy.Spider):
     """Spider for daily trending Python repositories."""
 
@@ -32,14 +36,14 @@ class GitHubTrendingPythonSpider(scrapy.Spider):
     def parse(self, response):
         for repo in response.css(SHARED_CSS_SELECTOR).extract():
             res = requests.put(
-                "url",
+                f"{os.getenv('CLOUDFLARE_KV_URL')}/python",
                 files={
                     "value": f"https://github.com{repo}",
                     "metadata": json.dumps(
                         {"updatedAt": datetime.datetime.now().isoformat()}
                     ),
                 },
-                headers={"Authorization": "Bearer token"},
+                headers={"Authorization": f"Bearer {os.getenv('CLOUDFLARE_KV_KEY')}"},
                 timeout=10,
             )
             res.raise_for_status()
