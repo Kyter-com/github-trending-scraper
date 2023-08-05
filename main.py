@@ -27,7 +27,7 @@ print("🏁 Starting scraper")
 
 
 class GitHubTrendingPythonSpider(scrapy.Spider):
-    """Spider for daily trending Python repositories."""
+    """Spider for daily trending Python repositories.""
 
     name = "GitHubTrendingSpider"
     start_urls = ["https://github.com/trending/python?since=daily"]
