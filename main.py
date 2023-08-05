@@ -7,7 +7,6 @@ from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 SHARED_CSS_SELECTOR = (
@@ -50,20 +49,32 @@ class GitHubTrendingPythonSpider(scrapy.Spider):
             print("📡 [Python] Successfully synced with Cloudflare KV")
 
 
-class GitHubTrendingGolangSpider(scrapy.Spider):
-    """Spider for daily trending Golang repositories."""
+class GitHubTrendingGoSpider(scrapy.Spider):
+    """Spider for daily trending Go repositories."""
 
     name = "GitHubTrendingSpider"
     start_urls = ["https://github.com/trending/go?since=daily"]
 
     def parse(self, response):
         for repo in response.css(SHARED_CSS_SELECTOR).extract():
-            yield {"repo": "https://github.com" + repo, "language": "go"}
+            res = requests.put(
+                f"{os.getenv('CLOUDFLARE_KV_URL')}/go",
+                files={
+                    "value": f"https://github.com{repo}",
+                    "metadata": json.dumps(
+                        {"updatedAt": datetime.datetime.now().isoformat()}
+                    ),
+                },
+                headers={"Authorization": f"Bearer {os.getenv('CLOUDFLARE_KV_KEY')}"},
+                timeout=10,
+            )
+            res.raise_for_status()
+            print("📡 [Go] Successfully synced with Cloudflare KV")
 
 
 custom_settings = get_project_settings()
 custom_settings["LOG_LEVEL"] = "ERROR"
 process = CrawlerProcess(settings=custom_settings)
 process.crawl(GitHubTrendingPythonSpider)
-process.crawl(GitHubTrendingGolangSpider)
+process.crawl(GitHubTrendingGoSpider)
 process.start()
