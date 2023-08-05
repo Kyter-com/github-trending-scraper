@@ -1,8 +1,12 @@
 name: CodeQL Analysis
-on: [push, pull_request]
 
-permissions:
-  contents: read
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  schedule:
+    - cron: "0 3 * * 0"
 
 jobs:
   run-codeQL-analysis:
