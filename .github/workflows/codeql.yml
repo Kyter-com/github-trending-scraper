@@ -1,0 +1,10 @@
+name: CodeQL Analysis
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  run-codeQL-analysis:
+    name: CodeQL analysis
+    uses: actions/reusable-workflows/.github/workflows/codeql-analysis.yml@main
