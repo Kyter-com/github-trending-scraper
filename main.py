@@ -21,6 +21,18 @@ SHARED_CSS_SELECTOR = (
     + "h2 >"
     + "a::attr(href)"
 )
+SHARED_TOTAL_STARS_SELECTOR = (
+    "body >"
+    + "div.logged-out.env-production.page-responsive >"
+    + "div.application-main >"
+    + "main >"
+    + "div.position-relative.container-lg.p-responsive.pt-6 >"
+    + "div >"
+    + "div:nth-child(2) >"
+    + "article:nth-child(1) >"
+    + "div.f6.color-fg-muted.mt-2 >"
+    + "a:nth-child(2)::text"
+)
 
 
 print("🏁 Starting scraper")
@@ -33,20 +45,24 @@ class GitHubTrendingPythonSpider(scrapy.Spider):
     start_urls = ["https://github.com/trending/python?since=daily"]
 
     def parse(self, response):
-        for repo in response.css(SHARED_CSS_SELECTOR).extract():
-            res = requests.put(
-                f"{os.getenv('CLOUDFLARE_KV_URL')}/python",
-                files={
-                    "value": f"https://github.com{repo}",
-                    "metadata": json.dumps(
-                        {"updatedAt": datetime.datetime.now().isoformat()}
-                    ),
-                },
-                headers={"Authorization": f"Bearer {os.getenv('CLOUDFLARE_KV_KEY')}"},
-                timeout=10,
-            )
-            res.raise_for_status()
-            print("📡 [Python] Successfully synced with Cloudflare KV")
+        repo = response.css(SHARED_CSS_SELECTOR).extract()
+        total_stars = response.css(SHARED_TOTAL_STARS_SELECTOR).extract()[1].strip()
+        res = requests.put(
+            f"{os.getenv('CLOUDFLARE_KV_URL')}/python",
+            files={
+                "value": f"https://github.com{repo}",
+                "metadata": json.dumps(
+                    {
+                        "updated_at": datetime.datetime.now().isoformat(),
+                        "total_stars": total_stars,
+                    }
+                ),
+            },
+            headers={"Authorization": f"Bearer {os.getenv('CLOUDFLARE_KV_KEY')}"},
+            timeout=10,
+        )
+        res.raise_for_status()
+        print("📡 [Python] Successfully synced with Cloudflare KV")
 
 
 class GitHubTrendingGoSpider(scrapy.Spider):
