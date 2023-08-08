@@ -45,7 +45,7 @@ class GitHubTrendingPythonSpider(scrapy.Spider):
     start_urls = ["https://github.com/trending/python?since=daily"]
 
     def parse(self, response):
-        repo = response.css(SHARED_CSS_SELECTOR).extract()
+        repo = response.css(SHARED_CSS_SELECTOR).extract()[0]
         total_stars = response.css(SHARED_TOTAL_STARS_SELECTOR).extract()[1].strip()
         res = requests.put(
             f"{os.getenv('CLOUDFLARE_KV_URL')}/python",
