@@ -55,6 +55,8 @@ class GitHubTrendingPythonSpider(scrapy.Spider):
                     {
                         "updated_at": datetime.datetime.now().isoformat(),
                         "total_stars": total_stars,
+                        "author_name": repo.split("/")[1],
+                        "repo_name": repo.split("/")[2],
                     }
                 ),
             },
