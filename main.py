@@ -74,20 +74,26 @@ class GitHubTrendingGoSpider(scrapy.Spider):
     start_urls = ["https://github.com/trending/go?since=daily"]
 
     def parse(self, response):
-        for repo in response.css(SHARED_CSS_SELECTOR).extract():
-            res = requests.put(
-                f"{os.getenv('CLOUDFLARE_KV_URL')}/go",
-                files={
-                    "value": f"https://github.com{repo}",
-                    "metadata": json.dumps(
-                        {"updatedAt": datetime.datetime.now().isoformat()}
-                    ),
-                },
-                headers={"Authorization": f"Bearer {os.getenv('CLOUDFLARE_KV_KEY')}"},
-                timeout=10,
-            )
-            res.raise_for_status()
-            print("📡 [Go] Successfully synced with Cloudflare KV")
+        repo = response.css(SHARED_CSS_SELECTOR).extract()[0]
+        total_stars = response.css(SHARED_TOTAL_STARS_SELECTOR).extract()[1].strip()
+        res = requests.put(
+            f"{os.getenv('CLOUDFLARE_KV_URL')}/go",
+            files={
+                "value": f"https://github.com{repo}",
+                "metadata": json.dumps(
+                    {
+                        "updated_at": datetime.datetime.now().isoformat(),
+                        "total_stars": total_stars,
+                        "author_name": repo.split("/")[1],
+                        "repo_name": repo.split("/")[2],
+                    }
+                ),
+            },
+            headers={"Authorization": f"Bearer {os.getenv('CLOUDFLARE_KV_KEY')}"},
+            timeout=10,
+        )
+        res.raise_for_status()
+        print("📡 [Go] Successfully synced with Cloudflare KV")
 
 
 custom_settings = get_project_settings()
